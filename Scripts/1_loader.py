@@ -20,8 +20,10 @@ Loads all training dataset into memory
 import os
 import glob
 
-import matplotlib.pyplot
+import matplotlib.pyplot as plt
 
+train_x_dir = '/Users/Kaggle/nuclei/Data/stage1_train'
+train_y_path = '/Users/Kaggle/nuclei/Data/stage1_train_labels.csv'
 
-glob.glob()
-/Users/Kaggle/nuclei
+full_image_paths = glob.glob(train_x_dir+'/*')
+full_image_paths
