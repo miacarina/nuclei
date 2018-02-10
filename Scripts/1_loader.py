@@ -17,3 +17,11 @@ Loads all training dataset into memory
 
 
 # Import modules
+import os
+import glob
+
+import matplotlib.pyplot
+
+
+glob.glob()
+/Users/Kaggle/nuclei
