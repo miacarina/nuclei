@@ -27,34 +27,6 @@ from skimage.filters import try_all_threshold
 
 
 # =============================================================================
-# Utility Functions
-# =============================================================================
-def show_images(image_ids, train_x_dir):
-  plt.close('all')  
-  fig, ax = plt.subplots(nrows=len(image_ids),ncols=3, figsize=(10,10))
-
-  for image_idx, image_id in enumerate(image_ids):
-    image_path = os.path.join(train_x_dir, image_id, 'images', '{}.png'.format(image_id))
-    mask_paths = os.path.join(train_x_dir, image_id, 'masks', '*.png')
-  
-    image = skimage.io.imread(image_path)
-    masks = skimage.io.imread_collection(mask_paths).concatenate()
-    mask = np.zeros(image.shape[:2], np.uint16)
-    for mask_idx in range(masks.shape[0]):
-      mask[masks[mask_idx] > 0] = mask_idx + 1
-    other = mask == 0
-    
-    if len(image_ids) > 1:
-      ax[image_idx, 0].imshow(image)
-      ax[image_idx, 1].imshow(mask)
-      ax[image_idx, 2].imshow(np.expand_dims(other, axis=2) * image)
-    else:
-      ax[0].imshow(image)
-      ax[1].imshow(mask)
-      ax[2].imshow(np.expand_dims(other, axis=2) * image)
-
-
-# =============================================================================
 # Discovery
 # =============================================================================
 # Define paths
