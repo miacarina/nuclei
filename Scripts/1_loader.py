@@ -31,10 +31,13 @@ import skimage.io
 # Import custom functions
 sys.path.append('/Users/Kaggle/nuclei/Functions')
 from Image_Pre_Processing.Transform import rgb2gray
+from General.Utility import flatten
+
 
 # Import parallelisation modules
 import multiprocessing
 from joblib import Parallel, delayed
+
 
 
 import random
@@ -83,17 +86,17 @@ test_image_mask_paths = glob.glob(os.path.join('/'.join(test_image_path.split('/
 
 
 mask_path = test_image_mask_paths[0]
+
 mask_image = skimage.io.imread(mask_path)
 
 
 # Plot
-plt.imshow(mask_image, 'gray')
+plt.imshow(mask_image)
 plt.colorbar()
 plt.show()
 
 #mask_image = np.array([[0,0,0,0],[0,1,0,1],[0,1,1,0],[0,0,1,1]], dtype = 'uint8')
-
-
+#mask_image = final_array
 mask_image = mask_image.T
 
 print('Check for image that is more long than wide and see what code does... probably needs another exception, ha!')
@@ -101,20 +104,12 @@ print('Check for image that is more long than wide and see what code does... pro
 output = []
 if mask_image.shape[0] != mask_image.shape[1]:
     print('Not square.')
-#    mask_image = np.asmatrix(mask_image)
-#    
-#    for i in range(0, mask_image.shape[1]*mask_image.shape[0]):
-##        print(i,mask_image.item(i))
-#        if mask_image.item(i) !=0:
-#            output.append(i)
+    mask_image = np.asmatrix(mask_image)
     
-    for i in range(0, mask_image.shape[0]):
-        if mask_image[i].sum() != 0:
-            print(i, mask_image[i])
-            for k in range(mask_image.shape[0]):
-                if mask_image[i][k] !=0 :
-                    print((2*(1+i), mask_image[i][k]))
-                    output.append((i*len(mask_image)+k))
+    for i in range(0, mask_image.shape[1]*mask_image.shape[0]):
+#        print(i,mask_image.item(i))
+        if mask_image.item(i) !=0:
+            output.append(i+1)
 else:
     print('Square.')
     for i in range(0, mask_image.shape[1]):
@@ -131,35 +126,97 @@ else:
 
 
 
+"""
+# Simple testing
+re = np.array([[0, 0, 1, 1, 0], [0, 1, 1, 1, 0],[0, 0, 1, 0, 0]], np.int32)
 
-
-reverse_img = '/Users/Kaggle/nuclei/Data/stage1_train/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d/images/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d.png'
-
-reverse_img = skimage.io.imread(reverse_img)
-
-
-reverse = '214863 14 215378 23 215896 27 216413 31 216932 35 217451 38 217970 42 218489 45 219008 49 219528 53 220047 63 220566 67 221086 70 221605 73 222125 74 222645 75 223165 76 223685 76 224205 77 224725 77 225245 78 225765 78 226285 78 226805 78 227326 77 227846 76 228367 74 228887 73 229408 72 229929 70 230450 68 230971 66 231492 64 232013 61 232534 58 233055 54 233577 49 234104 40 234631 32 235154 24'
-
-
-
-reverse_img.shape
+reverse = '5 1 7 5'
+"""
 
 
 
+def pairwise_grouping(ls):
+    grouped_ls = []
+    for n in range(0,int(len(ls)/2)):
+        grouped_ls.append([int(ls[2*n]), int(ls[2*n+1])])
+    return grouped_ls
 
-reverse_array = np.array([[0,0,1,1,0],[0,1,1,1,0],[0,0,1,0,0]])
 
-if mask_image.shape[0] != mask_image.shape[1]:
-    mask_image = np.asmatrix(mask_image)
+def expand_ls(ls_expand):
+    new_ls = []
+    first = ls_expand[0]
+    second = ls_expand[1]
     
-    for i in range(0, mask_image.shape[1]*mask_image.shape[0]):
-        print(i,mask_image.item(i))
-        if mask_image.item(i) !=0:
-            print(i)
-            output.append(i)
+    while second > 0:
+        new_ls.append([first, 1])
+        first = first + 1
+        second = second - 1
+    return new_ls
 
 
 
+# 
+reverse = '101 33 461 32 822 31 1182 31 1543 29 1903 29 2264 27 2624 26 2985 24 3346 23 3706 23 4066 22 4427 20 4788 18 5150 13 5511 11 5873 5'
+
+
+img_path = '/Users/Kaggle/nuclei/Data/stage1_train/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d/images/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d.png'
+
+
+# Reverse image plot for control
+reverse_img = skimage.io.imread(img_path)
+plt.imshow(reverse_img)
+plt.colorbar()
+plt.show()
+
+
+ls = reverse.split(' ')
+
+
+grouped_ls = pairwise_grouping(ls)
+
+
+extended_ls = []
+for item in grouped_ls:
+    extended_ls.append(expand_ls(item))
+
+
+final_ls = pairwise_grouping(flatten(extended_ls))
+
+
+
+reshaped_matrix= np.zeros(shape = (reverse_img.shape[0], reverse_img.shape[1]), dtype=int)
+for l in range(len(final_ls)):
+    reshaped_matrix[    (final_ls[l][0]//reshaped_matrix.shape[0]),  (final_ls[l][0]%reshaped_matrix.shape[0])   ] = 1
+#    print(final_ls[l])
+
+
+
+final_array = np.asarray(reshaped_matrix.T, dtype=np.uint8)
+
+
+
+plt.imshow(final_array)
+plt.show()
+
+
+
+
+
+#if mask_image.shape[0] != mask_image.shape[1]:
+#    mask_image = np.asmatrix(mask_image)
+#    
+#    for i in range(0, mask_image.shape[1]*mask_image.shape[0]):
+#        print(i,mask_image.item(i))
+#        if mask_image.item(i) !=0:
+#            print(i)
+#            output.append(i)
+#    for i in range(0, mask_image.shape[0]):
+#        if mask_image[i].sum() != 0:
+#            print(i, mask_image[i])
+#            for k in range(mask_image.shape[1]):
+#                if mask_image[i][k] !=0 :
+#                    print((2*(1+i), mask_image[i][k]))
+#                    output.append((i*len(mask_image)+k))
 
 
 
