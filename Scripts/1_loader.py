@@ -53,6 +53,9 @@ def create_mask():
     
     return
 
+
+
+
 def as_range(iterable): # not sure how to do this part elegantly
     l = list(iterable)
     if len(l) > 1:
@@ -128,9 +131,12 @@ else:
 
 """
 # Simple testing
-re = np.array([[0, 0, 1, 1, 0], [0, 1, 1, 1, 0],[0, 0, 1, 0, 0]], np.int32)
+re = np.array([[0, 0, 1, 1, 0], [0, 1, 1, 1, 0],[0, 0, 1, 0, 0]])
 
 reverse = '5 1 7 5'
+
+reverse_img = re
+
 """
 
 
@@ -185,9 +191,11 @@ final_ls = pairwise_grouping(flatten(extended_ls))
 
 
 reshaped_matrix= np.zeros(shape = (reverse_img.shape[0], reverse_img.shape[1]), dtype=int)
+
 for l in range(len(final_ls)):
+    print(final_ls[l])
+    print((final_ls[l][0]//reshaped_matrix.shape[0]),  (final_ls[l][0]%reshaped_matrix.shape[0]))
     reshaped_matrix[    (final_ls[l][0]//reshaped_matrix.shape[0]),  (final_ls[l][0]%reshaped_matrix.shape[0])   ] = 1
-#    print(final_ls[l])
 
 
 
