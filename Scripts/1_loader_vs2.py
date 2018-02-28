@@ -39,42 +39,41 @@ import multiprocessing
 from joblib import Parallel, delayed
 
 
-
-import random
 from itertools import groupby, count
 
 
+
+
+
+# Extract image ID
 def image_id(full_image_folder_path):
     image_id = os.path.basename(full_image_folder_path).split('.')
     return image_id[0]
 
 
-
-def as_range(iterable): # not sure how to do this part elegantly
+# Iterate through list to create range
+def as_range(iterable):
     l = list(iterable)
     if len(l) > 1:
         return '{0} {1}'.format(l[0], len(l))
     else:
         return '{0} {1}'.format(l[0], '1')
-    
-    
 
-def create_mask(mask_path, idx):
+
+# Create RLE from mask image path
+def create_rle(mask_img_path):
     
     # Read in image from file path to mask
-    mask_image = skimage.io.imread(mask_path)
+    mask_image = skimage.io.imread(mask_img_path)
     
     # Transpose array
     mask_image = mask_image.T
-    
-    print('Check for image that is more long than wide and see what code does... probably needs another exception, ha!')
     
     # Create empty list for pixel positions
     output = []
     
     # Check if image is square
     if mask_image.shape[0] != mask_image.shape[1]:
-        print('Not square.')
         
         # Reshape array into matrix to use matrix item function
         mask_image = np.asmatrix(mask_image)
@@ -86,7 +85,6 @@ def create_mask(mask_path, idx):
                 
     # Condition for non-square images
     else:
-        print('Square.')
         for i in range(0, mask_image.shape[1]):
             
             # Check if row sum is != 0 and append value
@@ -96,10 +94,9 @@ def create_mask(mask_path, idx):
                         output.append((i*len(mask_image)+k)+1)
     
     # Create rfe by splitting out start value to individual nunmbers
-    rfe = ' '.join(as_range(g) for _, g in groupby(output, key = lambda n, c = count(): n-next(c)))
+    rle = ' '.join(as_range(g) for _, g in groupby(output, key = lambda n, c = count(): n-next(c)))
 
-    return rfe, image_id(mask_path), idx
-
+    return rle, image_id(mask_img_path)
 
 
 
@@ -108,59 +105,14 @@ def flatten_masks(all_image_paths):
     for i in range(0,len(all_image_paths)):
         mask_paths.append(glob.glob(os.path.join('/'.join(all_image_paths[i].split('/')[:-2]), 'masks', '*')))
     return flatten(mask_paths)
-    
-    
 
 
-
-if __name__ == '__main__':
+def img_mask_id(all_image_paths):
     
-    # Folder path to training data
-    train_x_dir = '/Users/Kaggle/nuclei/Data/stage1_train'
-    train_y_path = '/Users/Kaggle/nuclei/Data/stage1_train_labels.csv'
-    
-    
-    full_image_folder_paths = glob.glob(train_x_dir+'/*')
-    
-    
-    all_image_paths = glob.glob(os.path.join(train_x_dir, '*', 'images', '*'))
-    
-    
-    all_mask_paths = flatten_masks(all_image_paths)
-    
-    
-    all_mask_df = pd.DataFrame(all_mask_paths, columns = {'paths'})
-    
-    all_mask_df['idx'] = all_mask_df.index
-    
-    # Define # of cores
-    ncores         = multiprocessing.cpu_count() - 1
-    
-    
-    
-    #==============================================================================
-    # Review extraction
-    #==============================================================================
-
-    # Job review extraction
-    output_reviews = Parallel(n_jobs = ncores)(delayed(create_mask)(path, index) for index, path in zip(all_mask_df['idx'],all_mask_df['paths']))
-    
-    
-    
-    
-
-
-
-"""
-# Simple testing
-re = np.array([[0, 0, 1, 1, 0], [0, 1, 1, 1, 0],[0, 0, 1, 0, 0]])
-
-reverse = '5 1 7 5'
-
-reverse_img = re
-
-"""
-
+    img_mask_ids = []
+    for i in range(0,len(all_image_paths)):
+        img_mask_ids.append(glob.glob(os.path.join('/'.join(all_image_paths[i].split('/')[:-2]), 'masks', '*')))
+    return img_mask_ids
 
 
 def pairwise_grouping(ls):
@@ -168,6 +120,7 @@ def pairwise_grouping(ls):
     for n in range(0,int(len(ls)/2)):
         grouped_ls.append([int(ls[2*n]), int(ls[2*n+1])])
     return grouped_ls
+
 
 
 def expand_ls(ls_expand):
@@ -183,18 +136,59 @@ def expand_ls(ls_expand):
 
 
 
+
+if __name__ == '__main__':
+    
+    # Folder path to training data
+    train_x_dir = '/Users/Kaggle/nuclei/Data/stage1_train'
+    train_y_path = '/Users/Kaggle/nuclei/Data/stage1_train_labels.csv'
+    
+    
+    full_image_folder_paths = glob.glob(train_x_dir+'/*')
+    
+    
+    # Extract image paths
+    all_image_paths = glob.glob(os.path.join(train_x_dir, '*', 'images', '*'))
+    
+    all_mask_paths = flatten_masks(all_image_paths)
+    
+    all_mask_df = pd.DataFrame(all_mask_paths, columns = {'paths'})
+    
+    all_mask_df['idx'] = all_mask_df.index
+    
+    
+    # Define # of cores
+    ncores         = multiprocessing.cpu_count() - 1
+    
+    
+    #==============================================================================
+    # Mask extraction
+    #==============================================================================
+    
+    # Job review extraction
+    output_masks = Parallel(n_jobs = ncores)(delayed(create_rle)(path) for path in all_mask_df['paths'])
+    
+    print('Check for image that is more long than wide and see what code does... probably needs another exception, ha!')
+    
+    mask_df = pd.DataFrame(output_masks)
+    
+    mask_df.columns = ['rle', 'mask_id']
+    
+    mask_df.to_csv('/Users/mia/Desktop/mask_df.csv', index=False)
+    
+    
+    #==============================================================================
+    # Mask extraction
+    #==============================================================================
+    
+    labels_df = pd.read_csv(train_y_path)
+    
+    labels_df['EncodedPixels']
+    
+    
+
 # 
 reverse = '101 33 461 32 822 31 1182 31 1543 29 1903 29 2264 27 2624 26 2985 24 3346 23 3706 23 4066 22 4427 20 4788 18 5150 13 5511 11 5873 5'
-
-
-img_path = '/Users/Kaggle/nuclei/Data/stage1_train/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d/images/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d.png'
-
-
-# Reverse image plot for control
-reverse_img = skimage.io.imread(img_path)
-plt.imshow(reverse_img)
-plt.colorbar()
-plt.show()
 
 
 ls = reverse.split(' ')
@@ -229,23 +223,6 @@ plt.show()
 
 
 
-
-
-#if mask_image.shape[0] != mask_image.shape[1]:
-#    mask_image = np.asmatrix(mask_image)
-#    
-#    for i in range(0, mask_image.shape[1]*mask_image.shape[0]):
-#        print(i,mask_image.item(i))
-#        if mask_image.item(i) !=0:
-#            print(i)
-#            output.append(i)
-#    for i in range(0, mask_image.shape[0]):
-#        if mask_image[i].sum() != 0:
-#            print(i, mask_image[i])
-#            for k in range(mask_image.shape[1]):
-#                if mask_image[i][k] !=0 :
-#                    print((2*(1+i), mask_image[i][k]))
-#                    output.append((i*len(mask_image)+k))
 
 
 
