@@ -135,6 +135,41 @@ def expand_ls(ls_expand):
     return new_ls
 
 
+def reverse_rle(rle_string, image_path):
+    print(image_path)
+    print('\n')
+    # Split string on spaces
+    ls = rle_string.split(' ')
+    
+    # Grouping pixel position and count
+    grouped_ls = pairwise_grouping(ls)
+
+    # Expand list by pixel counts
+    expanded_ls = []
+    for item in grouped_ls:
+        expanded_ls.append(expand_ls(item))
+
+    # Flatten list of lists and group pairwise
+    final_ls = pairwise_grouping(flatten(expanded_ls))
+
+    # Read in image format
+    reverse_img = rgb2gray(skimage.io.imread(image_path))
+
+    try:
+        # Set up empty matrix with shape of image
+        reshaped_matrix = np.zeros(shape = (reverse_img.shape[0], reverse_img.shape[1]), dtype=int)
+        
+        for l in range(len(final_ls)):
+    #        print((final_ls[l][0]//reshaped_matrix.shape[0]), (final_ls[l][0]%reshaped_matrix.shape[0]))
+            reshaped_matrix[    (final_ls[l][0]//reshaped_matrix.shape[0]), (final_ls[l][0]%reshaped_matrix.shape[0])   ] = 1
+        
+        # Create final image array
+        final_array = np.asarray(reshaped_matrix.T, dtype=np.uint8)
+    except(IndexError):
+        final_array = image_path
+
+    return final_array
+
 
 
 if __name__ == '__main__':
@@ -165,56 +200,30 @@ if __name__ == '__main__':
     # Mask extraction
     #==============================================================================
     
-    # Job review extraction
-    output_masks = Parallel(n_jobs = ncores)(delayed(create_rle)(path) for path in all_mask_df['paths'])
-    
-    print('Check for image that is more long than wide and see what code does... probably needs another exception, ha!')
-    
-    mask_df = pd.DataFrame(output_masks)
-    
-    mask_df.columns = ['rle', 'mask_id']
-    
-    mask_df.to_csv('/Users/mia/Desktop/mask_df.csv', index=False)
-    
+#    # Job review extraction
+#    output_masks = Parallel(n_jobs = ncores)(delayed(create_rle)(path) for path in all_mask_df['paths'])
+#    
+#    print('Check for image that is more long than wide and see what code does... probably needs another exception, ha!')
+#    
+#    mask_df = pd.DataFrame(output_masks)
+#    
+#    mask_df.columns = ['rle', 'mask_id']
+#    
+#    mask_df.to_csv('/Users/mia/Desktop/mask_df.csv', index=False)
+#    
     
     #==============================================================================
     # Mask extraction
     #==============================================================================
     
     labels_df = pd.read_csv(train_y_path)
-    
-    labels_df['EncodedPixels']
-    
+        
     
 
-# 
-reverse = '101 33 461 32 822 31 1182 31 1543 29 1903 29 2264 27 2624 26 2985 24 3346 23 3706 23 4066 22 4427 20 4788 18 5150 13 5511 11 5873 5'
-
-
-ls = reverse.split(' ')
-
-
-grouped_ls = pairwise_grouping(ls)
-
-
-extended_ls = []
-for item in grouped_ls:
-    extended_ls.append(expand_ls(item))
-
-
-final_ls = pairwise_grouping(flatten(extended_ls))
 
 
 
-reshaped_matrix= np.zeros(shape = (reverse_img.shape[0], reverse_img.shape[1]), dtype=int)
-
-for l in range(len(final_ls)):
-    print((final_ls[l][0]//reshaped_matrix.shape[0]),  (final_ls[l][0]%reshaped_matrix.shape[0]))
-    reshaped_matrix[    (final_ls[l][0]//reshaped_matrix.shape[0]),  (final_ls[l][0]%reshaped_matrix.shape[0])   ] = 1
-
-
-
-final_array = np.asarray(reshaped_matrix.T, dtype=np.uint8)
+    output_image_arrays = Parallel(n_jobs = ncores)(delayed(reverse_rle)(rle_string, '/Users/Kaggle/nuclei/Data/stage1_train/'+image_id+'/images/'+image_id+'.png') for rle_string, image_id in zip(labels_df['EncodedPixels'], labels_df['ImageId']))
 
 
 
