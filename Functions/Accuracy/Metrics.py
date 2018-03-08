@@ -12,15 +12,26 @@ import numpy as np
 import itertools
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
-def plot_cm(y_test, preds, cmap=plt.cm.Blues):
-    
+def plot_cm(actuals, predictions, cmap=plt.cm.Blues):
+    '''
+    This function computers the confusion matrix and displays a pretty confusion matrix.
+
+    Args:
+        actuals (list of str/float/int): actual target values
+        predictions (list of str/float/int): predictions of target values
+        cmap (matplotlib colormap): colormap
+
+    Returns:
+        numpy array. confusion matrix
+    '''
+
     # Setup    
-    classes     = np.unique(y_test)
+    classes     = np.unique(actuals)
     tick_marks  = np.arange(len(classes))
     cmap        = plt.cm.Blues
     
     # Confusion matrix
-    cm          = confusion_matrix(y_test, preds)
+    cm          = confusion_matrix(actuals, predictions)
     
     # Plot
     plt.figure(figsize=(6,6))

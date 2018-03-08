@@ -22,7 +22,7 @@ from subprocess import check_output
 sys.path.append('/Users/Kaggle/nuclei/Functions')
 from General.Utility import flatten
 from Accuracy.Metrics import plot_cm
-from Image_Pre_Processing.Transform import rgb2gray
+from Image_Pre_Processing.Transform import rgb2grey
 
 # Import image specific modules
 from skimage.filters import try_all_threshold
@@ -47,7 +47,7 @@ test_image = skimage.io.imread(test_image_path)
 test_masks = skimage.io.imread_collection(test_image_mask_paths).concatenate()
 
 # Convert image to grayscale array
-gray_image      = rgb2gray(test_image)
+gray_image      = rgb2grey(test_image)
 
 # Combine masks
 mask = np.zeros(gray_image.shape[:2], np.uint16)
@@ -88,8 +88,11 @@ if(np.sum(smoothed_threshold_mask==255)>np.sum(smoothed_threshold_mask==0)):
 # Segment to connected objects
 auto_segmented_smoothed_threshold_mask = measure.label(smoothed_threshold_mask)
 
-from scipy import ndimage as ndi
 
+
+
+# Watershed
+from scipy import ndimage as ndi
 from skimage.morphology import watershed
 from skimage.feature import peak_local_max
 
@@ -105,47 +108,30 @@ plt.show()
 len(np.unique(labels))
 
 
+plt.imshow(gray_image, cmap='gray')
 
-from skimage.data import astronaut
-from skimage.color import rgb2gray
-from skimage.filters import sobel
-from skimage.segmentation import felzenszwalb, slic, quickshift, watershed
-from skimage.segmentation import mark_boundaries
-from skimage.util import img_as_float
-from skimage.segmentation import felzenszwalb, slic, quickshift, watershed
-img = img_as_float(test_image[:,:,:3])
-segments_fz = felzenszwalb(img, scale=100, sigma=0.5, min_size=50)
-segments_slic = slic(img, n_segments=250, compactness=10, sigma=1)
-segments_quick = quickshift(img, kernel_size=3, max_dist=6, ratio=0.5)
-gradient = sobel(rgb2gray(img))
-segments_watershed = watershed(gradient, markers=250, compactness=0.001)
 
-print("Felzenszwalb number of segments: {}".format(len(np.unique(segments_fz))))
-print('SLIC number of segments: {}'.format(len(np.unique(segments_slic))))
-print('Quickshift number of segments: {}'.format(len(np.unique(segments_quick))))
 
-fig, ax = plt.subplots(2, 2, figsize=(10, 10), sharex=True, sharey=True,
-                       subplot_kw={'adjustable': 'box-forced'})
+from scipy import ndimage
+from skimage import morphology
+# Black tophat transformation (see https://en.wikipedia.org/wiki/Top-hat_transform)
+hat = ndimage.black_tophat(gray_image, 7)
+# Combine with denoised image
+hat -= 0.3 * gray_image
+# Morphological dilation to try to remove some holes in hat image
+hat = morphology.dilation(hat)
+plt.imshow(hat, cmap='spectral')
 
-ax[0, 0].imshow(mark_boundaries(img, segments_fz))
-ax[0, 0].set_title("Felzenszwalbs's method")
-ax[0, 1].imshow(mark_boundaries(img, segments_slic))
-ax[0, 1].set_title('SLIC')
-ax[1, 0].imshow(mark_boundaries(img, segments_quick))
-ax[1, 0].set_title('Quickshift')
-ax[1, 1].imshow(mark_boundaries(img, segments_watershed))
-ax[1, 1].set_title('Compact watershed')
+labels_hat = morphology.watershed(hat, smoothed_threshold_mask)
+from skimage import color
+color_labels = color.label2rgb(labels_hat, gray_image)
+plt.imshow(color_labels)
 
-for a in ax.ravel():
-    a.set_axis_off()
 
-plt.tight_layout()
-plt.show()
 
-plt.imshow(felzenszwalb(smoothed_threshold_mask, scale=20, sigma=1, min_size=20))
-plt.colorbar()
 
-watershed(gradient, markers=250, compactness=0.001)
+
+
 
 # =============================================================================
 # Plot
