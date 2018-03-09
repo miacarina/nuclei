@@ -8,17 +8,18 @@ Welcome to nuclei's documentation!
 
 This is a simple documentation for nuclei kaggle competition project.
 
-Requirements:
+**Requirements:**
 
 1. python 3.5
 2. sklearn
 
+**Contents**:
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    Functions
-
+   Scripts
 
 Indices and tables
 ==================

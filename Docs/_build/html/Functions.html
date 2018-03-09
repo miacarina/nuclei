@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Function Documentation! &#8212; nuclei 1.0 documentation</title>
+    <title>Function Documentation &#8212; nuclei 1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -31,8 +31,8 @@
           <div class="body" role="main">
             
   <div class="section" id="function-documentation">
-<h1>Function Documentation!<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h1>
-<p>This page outlines the functions used in the code.</p>
+<h1>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h1>
+<p>This page outlines useful custom functions.</p>
 <div class="section" id="module-Transform">
 <span id="image-pre-processing"></span><h2>Image Pre-Processing<a class="headerlink" href="#module-Transform" title="Permalink to this headline">¶</a></h2>
 <p>Created on Tue Feb 13 22:38:00 2018</p>
@@ -58,6 +58,57 @@ grey image as well as the masks</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="Transform.plot">
+<code class="descclassname">Transform.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>image_array</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>cmap='gray'</em><span class="sig-paren">)</span><a class="headerlink" href="#Transform.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function for lazy people to plot will minimal effort and limited functionality.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>image_array (numpy array/PIL.Image object): image to be plotted
+title (str): title of image</dd>
+<dt>Returns:</dt>
+<dd>Plot of image.</dd>
+<dt>Example:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">image_path</span> <span class="o">=</span> <span class="s2">&quot;/Users/Kaggle/nuclei/Data/stage1_train/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d/images/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d.png&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grey_image</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot</span><span class="p">(</span><span class="n">grey_image</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="Transform.plot_mask_comparison">
+<code class="descclassname">Transform.</code><code class="descname">plot_mask_comparison</code><span class="sig-paren">(</span><em>image</em>, <em>true_mask</em>, <em>prediction_mask</em>, <em>figsize=(10</em>, <em>10)</em>, <em>cmap=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Transform.plot_mask_comparison" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>This function plots 4 figures:</dt>
+<dd><ol class="first last arabic simple">
+<li>Image overlayed with original mask</li>
+<li>Image overlayed with prediction mask</li>
+<li>True mask</li>
+<li>Prediction mask</li>
+</ol>
+</dd>
+<dt>Args:</dt>
+<dd>image (numpy array of int): image of nuclei
+true_mask (numpy array of int): true masks collapsed into one array. This is an output of Transform.load_image
+prediction_mask (numpy array of int): prediction masks collapsed into one array. This is an output of Transform.load_image</dd>
+<dt>Returns: </dt>
+<dd><dl class="first last docutils">
+<dt>Plot of the following 4 figures:</dt>
+<dd><ol class="first last arabic simple">
+<li>Image overlayed with original mask</li>
+<li>Image overlayed with prediction mask</li>
+<li>True mask</li>
+<li>Prediction mask</li>
+</ol>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="Transform.rgb2grey">
 <code class="descclassname">Transform.</code><code class="descname">rgb2grey</code><span class="sig-paren">(</span><em>rgb_image_array</em><span class="sig-paren">)</span><a class="headerlink" href="#Transform.rgb2grey" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function converts an RGB image (nxm array of 4-tuples) into greyscale.</p>
@@ -70,13 +121,18 @@ grey image as well as the masks</p>
 <dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">PIL.Image</span> <span class="k">as</span> <span class="nn">im</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">image_path</span> <span class="o">=</span> <span class="s2">&quot;/Users/Kaggle/nuclei/Data/stage1_train/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d/images/89be66f88612aae541f5843abcd9c015832b5d6c54a28103b3019f7f38df8a6d.png&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">image_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rgb2gray</span><span class="p">(</span><span class="n">image_array</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rgb2grey</span><span class="p">(</span><span class="n">image_array</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd>
 </dl>
 </dd></dl>
 
+</div>
+<div class="section" id="module-SimpleThresholds">
+<span id="mask-extraction"></span><h2>Mask Extraction<a class="headerlink" href="#module-SimpleThresholds" title="Permalink to this headline">¶</a></h2>
+<p>Created on Thu Mar  8 22:59:39 2018</p>
+<p>&#64;author: Young</p>
 </div>
 <div class="section" id="module-Metrics">
 <span id="metrics"></span><h2>Metrics<a class="headerlink" href="#module-Metrics" title="Permalink to this headline">¶</a></h2>
@@ -97,6 +153,11 @@ cmap (matplotlib colormap): colormap</dd>
 </dd></dl>
 
 </div>
+<div class="section" id="module-Utility">
+<span id="general"></span><h2>General<a class="headerlink" href="#module-Utility" title="Permalink to this headline">¶</a></h2>
+<p>Created on Sun Feb 18 21:55:21 2018</p>
+<p>&#64;author: Young</p>
+</div>
 </div>
 
 
@@ -107,9 +168,11 @@ cmap (matplotlib colormap): colormap</dd>
         <div class="sphinxsidebarwrapper">
   <h3><a href="nuclei_doc.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Function Documentation!</a><ul>
+<li><a class="reference internal" href="#">Function Documentation</a><ul>
 <li><a class="reference internal" href="#module-Transform">Image Pre-Processing</a></li>
+<li><a class="reference internal" href="#module-SimpleThresholds">Mask Extraction</a></li>
 <li><a class="reference internal" href="#module-Metrics">Metrics</a></li>
+<li><a class="reference internal" href="#module-Utility">General</a></li>
 </ul>
 </li>
 </ul>

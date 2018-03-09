@@ -30,7 +30,7 @@ import skimage.io
 
 # Import custom functions
 sys.path.append('/Users/Kaggle/nuclei/Functions')
-from Image_Pre_Processing.Transform import rgb2gray
+from Image_Pre_Processing.Transform import rgb2grey
 from General.Utility import flatten
 
 

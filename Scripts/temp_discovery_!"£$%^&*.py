@@ -111,26 +111,21 @@ len(np.unique(labels))
 plt.imshow(gray_image, cmap='gray')
 
 
-
-from scipy import ndimage
-from skimage import morphology
-# Black tophat transformation (see https://en.wikipedia.org/wiki/Top-hat_transform)
-hat = ndimage.black_tophat(gray_image, 7)
-# Combine with denoised image
-hat -= 0.3 * gray_image
-# Morphological dilation to try to remove some holes in hat image
-hat = morphology.dilation(hat)
-plt.imshow(hat, cmap='spectral')
-
-labels_hat = morphology.watershed(hat, smoothed_threshold_mask)
-from skimage import color
-color_labels = color.label2rgb(labels_hat, gray_image)
-plt.imshow(color_labels)
-
-
-
-
-
+#
+#from scipy import ndimage
+#from skimage import morphology
+## Black tophat transformation (see https://en.wikipedia.org/wiki/Top-hat_transform)
+#hat = ndimage.black_tophat(gray_image, 7)
+## Combine with denoised image
+#hat -= 0.3 * gray_image
+## Morphological dilation to try to remove some holes in hat image
+#hat = morphology.dilation(hat)
+#plt.imshow(hat, cmap='spectral')
+#
+#labels_hat = morphology.watershed(hat, smoothed_threshold_mask)
+#from skimage import color
+#color_labels = color.label2rgb(labels_hat, gray_image)
+#plt.imshow(color_labels)
 
 
 # =============================================================================
@@ -170,6 +165,23 @@ plt.title('Image + segmented smooth threshold mask')
 plt.show()
 
 
+
+auto_segmented_smoothed_threshold_mask
+gray_image
+mask
+
+fig, ((ax1,ax2),(ax3,ax4)) = plt.subplots(nrows = 2, ncols = 2, figsize = (10,10))
+ax1.imshow(gray_image * mask)
+ax1.set_title('Image with true mask')
+ax2.imshow(gray_image * auto_segmented_smoothed_threshold_mask)
+ax2.set_title('Image with prediction mask')
+ax3.imshow(mask)
+ax3.set_title('True mask')
+ax4.imshow(auto_segmented_smoothed_threshold_mask)
+ax4.set_title('Prediction mask')
+
+
+plot_mask_comparison(gray_image, mask, auto_segmented_smoothed_threshold_mask, cmap = 'gray')
 
 
 # =============================================================================

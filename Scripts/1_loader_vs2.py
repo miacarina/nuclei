@@ -30,7 +30,7 @@ import skimage.io
 
 # Import custom functions
 sys.path.append('/Users/Kaggle/nuclei/Functions')
-from Image_Pre_Processing.Transform import rgb2gray
+from Image_Pre_Processing.Transform import rgb2grey
 from General.Utility import flatten
 
 
@@ -153,7 +153,7 @@ def reverse_rle(rle_string, image_path):
     final_ls = pairwise_grouping(flatten(expanded_ls))
 
     # Read in image format
-    reverse_img = rgb2gray(skimage.io.imread(image_path))
+    reverse_img = rgb2grey(skimage.io.imread(image_path))
 
     try:
         # Set up empty matrix with shape of image
