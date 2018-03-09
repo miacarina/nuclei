@@ -165,7 +165,6 @@ plt.title('Image + segmented smooth threshold mask')
 plt.show()
 
 
-
 auto_segmented_smoothed_threshold_mask
 gray_image
 mask
