@@ -11,8 +11,6 @@ Image Pre-Processing
 
 Mask Extraction
 ====================
-.. automodule:: SimpleThresholds
-    :members:
 
 
 Metrics
